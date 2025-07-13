@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GO Transit Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      height: 100vh;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+      position: relative;
+    }
+
+    .aurora {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, rgba(0,255,255,0.05), rgba(255,0,255,0.05), rgba(0,255,128,0.05));
+      animation: aurora 20s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    @keyframes aurora {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(-10%) translateY(-5%); }
+    }
+
+    canvas#snow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .card {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      padding: 2rem;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      color: white;
+      animation: fadeIn 2s ease, breathe 10s ease-in-out infinite;
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
+
+    .glint {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: skewX(-30deg);
+      animation: glintMove 1.2s ease forwards;
+    }
+
+    @keyframes glintMove {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.01); }
+    }
+
+    @keyframes flickerRed {
+      0%, 100% { background: rgba(255, 255, 255, 0.05); }
+      50% { background: rgba(255, 0, 0, 0.1); }
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .typewriter::after {
+      content: '|';
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+
+    input[type="password"]:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px #00c85388;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      background: #00c853;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:hover {
+      background: #00e676;
+      box-shadow: 0 0 10px #00c853aa;
+    }
+
+    #message {
+      margin-top: 1rem;
+      color: #ff5252;
+    }
+
+    .warp-out {
+      animation: warpOut 0.7s forwards;
+    }
+
+    @keyframes warpOut {
+      to {
+        opacity: 0;
+        transform: scale(1.2) rotateX(20deg);
+        filter: blur(10px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora"></div>
+  <canvas id="snow"></canvas>
+
+  <div class="card" id="card">
+    <div class="glint"></div>
+    <h2 class="typewriter" id="typeTitle"></h2>
+    <input type="password" id="password" placeholder="Enter password" />
+    <button id="submitBtn">Login</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const title = "Enter Password";
+    let i = 0;
+    function typeEffect() {
+      if (i < title.length) {
+        document.getElementById("typeTitle").textContent += title.charAt(i);
+        i++;
+        setTimeout(typeEffect, 100);
+      }
+    }
+    typeEffect();
+
+    const canvas = document.getElementById('snow');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let particles = Array(200).fill().map(() => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 3 + 1,
+      d: Math.random() * 1 + 0.5
+    }));
+
+    function drawSnow() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      for (let p of particles) {
+        ctx.moveTo(p.x, p.y);
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, true);
+      }
+      ctx.fill();
+      update();
+    }
+
+    function update() {
+      for (let p of particles) {
+        p.y += p.d;
+        if (p.y > height) {
+          p.y = 0;
+          p.x = Math.random() * width;
+        }
+      }
+    }
+
+    setInterval(drawSnow, 30);
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      const card = document.getElementById('card');
+      const x = (window.innerWidth / 2 - e.pageX) / 40;
+      const y = (window.innerHeight / 2 - e.pageY) / 40;
+      card.style.transform = `translate(${x}px, ${y}px) scale(1.01)`;
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", checkPassword);
+
+    async function checkPassword() {
+      const input = document.getElementById("password").value;
+      const msg = document.getElementById("message");
+      const card = document.getElementById("card");
+      try {
+        const res = await fetch("passwords.json");
+        const pwds = await res.json();
+        if (pwds.includes(input)) {
+          sessionStorage.setItem("authenticated", "true");
+          card.classList.add("warp-out");
+          setTimeout(() => {
+            const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+            const today = new Date().getDay();
+            window.location.href = `${days[today]}.html`;
+          }, 700);
+        } else {
+          card.style.animation = 'flickerRed 0.5s';
+          setTimeout(() => card.style.animation = '', 500);
+          msg.textContent = "Incorrect password.";
+        }
+      } catch (e) {
+        msg.textContent = "Error checking password.";
+      }
+    }
+  </script>
+</body>
+</html>
